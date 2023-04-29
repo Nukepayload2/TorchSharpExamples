@@ -8,7 +8,7 @@ Module Program
         Dim argumentParser1 As New ArgumentParser(New FileInfo(argumentsPath), args)
 
         If argumentParser1.Count = 0 Then
-            argumentParser1.UsingMessage("CSharpExamples", "<model-name>")
+            argumentParser1.UsingMessage("VBExamples", "<model-name>")
             Return
         End If
 
