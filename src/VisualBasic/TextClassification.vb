@@ -55,13 +55,11 @@ Public NotInheritable Class TextClassification
             Dim tokenizer = TorchText.Data.Utils.get_tokenizer("basic_english")
 
             Dim counter1 As New TorchText.Vocab.Counter(Of String)
-            ' TODO: Visual Basic does not support For Each Variable statement.
-            ' Original statement:
-            ' foreach (var (label, text) in dataloader)
-            '                 {
-            '                     counter.update(tokenizer(text));
-            '                 }
+            For Each x In dataloader
+                Dim label = x.Item1, text = x.Item2
 
+                counter1.update(tokenizer(text))
+            Next
 
             Dim vocab1 As New TorchText.Vocab.Vocab(counter1)
 
@@ -122,32 +120,26 @@ End of training: test accuracy: {accuracy:0.00} | eval time: {sw.Elapsed.TotalSe
 
         Dim batch_count As Integer = train_data.Count()
         Using d = torch.NewDisposeScope()
-            ' TODO: Visual Basic does not support For Each Variable statement.
-            ' Original statement:
-            ' foreach (var (labels, texts, offsets) in train_data)
-            '                 {
-            ' 
-            '                     optimizer.zero_grad();
-            ' 
-            '                     using (var predicted_labels = model.forward(texts, offsets))
-            '                     {
-            ' 
-            '                         var loss = criterion.forward(predicted_labels, labels);
-            '                         loss.backward();
-            '                         torch.nn.utils.clip_grad_norm_(model.parameters(), 0.5);
-            '                         optimizer.step();
-            ' 
-            '                         total_acc += (predicted_labels.argmax(1) == labels).sum().to(torch.CPU).item<long>();
-            '                         total_count += labels.size(0);
-            '                     }
-            ' 
-            '                     if (batch % log_interval == 0 && batch > 0)
-            '                     {
-            '                         var accuracy = total_acc / total_count;
-            '                         Console.WriteLine($"epoch: {epoch} | batch: {batch} / {batch_count} | accuracy: {accuracy:0.00}");
-            '                     }
-            '                     batch += 1;
-            '                 }
+            For Each x In train_data
+                Dim labels = x.Item1, texts = x.Item2, offsets = x.Item3
+
+                optimizer.zero_grad()
+                Using predicted_labels = model.forward(texts, offsets)
+                    Dim loss = criterion.forward(predicted_labels, labels)
+                    loss.backward()
+                    torch.nn.utils.clip_grad_norm_(model.parameters(), 0.5)
+                    optimizer.[step]()
+                    Dim tempVar = predicted_labels.argmax(1) = labels
+                    total_acc += tempVar.sum().[to](torch.CPU).AsLong()
+                    total_count += labels.size(0)
+                End Using
+
+                If batch Mod log_interval = 0 AndAlso batch > 0 Then
+                    Dim accuracy = total_acc / total_count
+                    Console.WriteLine($"epoch: {epoch} | batch: {batch} / {batch_count} | accuracy: {accuracy:0.00}")
+                End If
+                batch += 1
+            Next
 
         End Using
     End Sub
@@ -157,21 +149,15 @@ End of training: test accuracy: {accuracy:0.00} | eval time: {sw.Elapsed.TotalSe
         Dim total_acc As Double = 0.0
         Dim total_count As Long = 0
         Using d = torch.NewDisposeScope()
-            ' TODO: Visual Basic does not support For Each Variable statement.
-            ' Original statement:
-            ' foreach (var (labels, texts, offsets) in test_data)
-            '                 {
-            ' 
-            '                     using (var predicted_labels = model.forward(texts, offsets))
-            '                     {
-            '                         var loss = criterion.forward(predicted_labels, labels);
-            ' 
-            '                         total_acc += (predicted_labels.argmax(1) == labels).sum().to(torch.CPU).item<long>();
-            '                         total_count += labels.size(0);
-            '                     }
-            '                 }
-
-
+            For Each x In test_data
+                Dim labels = x.Item1, texts = x.Item2, offsets = x.Item3
+                Using predicted_labels = model.forward(texts, offsets)
+                    Dim loss = criterion.forward(predicted_labels, labels)
+                    Dim tempVar = predicted_labels.argmax(1) = labels
+                    total_acc += tempVar.sum().[to](torch.CPU).AsLong()
+                    total_count += labels.size(0)
+                End Using
+            Next
             Return total_acc / total_count
         End Using
     End Function

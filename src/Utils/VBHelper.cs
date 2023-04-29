@@ -15,6 +15,11 @@ namespace Examples.Utils
         {
             return tensor.item<float>();
         }
+        
+        public static long AsLong(this torch.Tensor tensor)
+        {
+            return tensor.item<long>();
+        }
 
         /// <summary>
         /// Expects input to be 1- or 2-D tensor and transposes dimensions 0 and 1.

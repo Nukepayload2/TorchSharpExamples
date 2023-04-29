@@ -15,6 +15,7 @@ Imports TorchSharp.torch.nn
 Imports TorchSharp.torch.nn.functional
 Imports cuda = TorchSharp.torch.cuda
 Imports Examples.Utils
+Imports TorchSharp.Examples.MNIST
 
 ''' <summary>
 ''' Simple MNIST Convolutional model.
@@ -128,30 +129,26 @@ Public NotInheritable Class MNIST
 
         Console.WriteLine($"Epoch: {epoch}...")
 
-        ' TODO: Visual Basic does not support For Each Variable statement.
-        ' Original statement:
-        ' foreach (var (data, target) in dataLoader)
-        '             {
-        '                 using (var d = torch.NewDisposeScope())
-        '                 {
-        '                     optimizer.zero_grad();
-        ' 
-        '                     var prediction = model.forward(data);
-        '                     var output = loss.forward(prediction, target);
-        ' 
-        '                     output.backward();
-        ' 
-        '                     optimizer.step();
-        ' 
-        '                     if (batchId % _logInterval == 0)
-        '                     {
-        '                         Console.WriteLine($"\rTrain: epoch {epoch} [{batchId * batchSize} / {size}] Loss: {output.ToSingle():F4}");
-        '                     }
-        ' 
-        '                     batchId++;
-        '                 }
-        ' 
-        '             }
+        For Each x In dataLoader
+            Dim data = x.Item1, target = x.Item2
+            Using d = torch.NewDisposeScope()
+                optimizer.zero_grad()
+
+                Dim prediction = model1.forward(data)
+                Dim output = loss1.forward(prediction, target)
+
+                output.backward()
+
+                optimizer.[step]()
+
+                If batchId Mod _logInterval = 0 Then
+                    Console.WriteLine($"
+Train: epoch {epoch} [{batchId * batchSize1} / {size1}] Loss: {output.ToSingle():F4}")
+                End If
+
+                batchId += 1
+            End Using
+        Next
 
     End Sub
     Private Shared Sub Test(
@@ -167,20 +164,16 @@ Public NotInheritable Class MNIST
         Dim testLoss As Double = 0
         Dim correct As Integer = 0
 
-        ' TODO: Visual Basic does not support For Each Variable statement.
-        ' Original statement:
-        ' foreach (var (data, target) in dataLoader)
-        '             {
-        '                 using (var d = torch.NewDisposeScope())
-        '                 {
-        '                     var prediction = model.forward(data);
-        '                     var output = loss.forward(prediction, target);
-        '                     testLoss += output.ToSingle();
-        ' 
-        '                     correct += prediction.argmax(1).eq(target).sum().ToInt32();
-        '                 }
-        '             }
+        For Each x In dataLoader
+            Dim data = x.Item1, target = x.Item2
+            Using d = torch.NewDisposeScope()
+                Dim prediction = model1.forward(data)
+                Dim output = loss1.forward(prediction, target)
+                testLoss += output.ToSingle()
 
+                correct += prediction.argmax(1).eq(target).sum().ToInt32()
+            End Using
+        Next
 
         Console.WriteLine($"Size: {size1}, Total: {size1}")
 

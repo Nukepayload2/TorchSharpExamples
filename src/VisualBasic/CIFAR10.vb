@@ -142,36 +142,32 @@ NotInheritable Class CIFAR10
 
         Console.WriteLine($"Epoch: {epoch}...")
 
-        ' TODO: Visual Basic does not support For Each Variable statement.
-        ' Original statement:
-        ' foreach (var (data, target) in dataLoader)
-        '             {
-        ' 
-        '                 using (var d = torch.NewDisposeScope())
-        '                 {
-        '                     optimizer.zero_grad();
-        ' 
-        '                     var prediction = model.forward(data);
-        '                     var lsm = log_softmax(prediction, 1);
-        '                     var output = loss.forward(lsm, target);
-        ' 
-        '                     output.backward();
-        ' 
-        '                     optimizer.step();
-        ' 
-        '                     total += target.shape[0];
-        ' 
-        '                     correct += prediction.argmax(1).eq(target).sum().ToInt64();
-        ' 
-        '                     if (batchId % _logInterval == 0)
-        '                     {
-        '                         var count = Math.Min(batchId * batchSize, size);
-        '                         Console.WriteLine($"\rTrain: epoch {epoch} [{count} / {size}] Loss: {output.ToSingle().ToString("0.000000")} | Accuracy: { ((float)correct / total).ToString("0.000000") }");
-        '                     }
-        ' 
-        '                     batchId++;
-        '                 }
-        '             }
+        For Each x In dataLoader
+            Dim data = x.Item1, target = x.Item2
+            Using d = torch.NewDisposeScope()
+                optimizer.zero_grad()
+
+                Dim prediction = model.forward(data)
+                Dim lsm = log_softmax(prediction, 1)
+                Dim output = loss.forward(lsm, target)
+
+                output.backward()
+
+                optimizer.[step]()
+
+                total += target.shape(0)
+
+                correct += prediction.argmax(1).eq(target).sum().ToInt64()
+
+                If batchId Mod _logInterval = 0 Then
+                    Dim count = Math.Min(batchId * batchSize, size1)
+                    Console.WriteLine($"
+Train: epoch {epoch} [{count} / {size1}] Loss: {output.ToSingle().ToString("0.000000")} | Accuracy: {(CSng(correct) / total).ToString("0.000000") }")
+                End If
+
+                batchId += 1
+            End Using
+        Next
 
     End Sub
     Private Shared Sub Test(
@@ -188,24 +184,19 @@ NotInheritable Class CIFAR10
         Dim correct As Long = 0
         Dim batchCount As Integer = 0
 
-        ' TODO: Visual Basic does not support For Each Variable statement.
-        ' Original statement:
-        ' foreach (var (data, target) in dataLoader)
-        '             {
-        ' 
-        '                 using (var d = torch.NewDisposeScope())
-        '                 {
-        '                     var prediction = model.forward(data);
-        '                     var lsm = log_softmax(prediction, 1);
-        '                     var output = loss.forward(lsm, target);
-        ' 
-        '                     testLoss += output.ToSingle();
-        '                     batchCount += 1;
-        ' 
-        '                     correct += prediction.argmax(1).eq(target).sum().ToInt64();
-        '                 }
-        '             }
+        For Each x In dataLoader
+            Dim data = x.Item1, target = x.Item2
+            Using d = torch.NewDisposeScope()
+                Dim prediction = model.forward(data)
+                Dim lsm = log_softmax(prediction, 1)
+                Dim output = loss.forward(lsm, target)
 
+                testLoss += output.ToSingle()
+                batchCount += 1
+
+                correct += prediction.argmax(1).eq(target).sum().ToInt64()
+            End Using
+        Next
 
         Console.WriteLine($"
 Test set: Average loss {(testLoss / batchCount).ToString("0.0000")} | Accuracy {(CSng(correct) / size1).ToString("0.0000")}")
